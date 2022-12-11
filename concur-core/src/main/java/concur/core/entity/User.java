@@ -30,13 +30,7 @@ public class User {
 
     }
 
-    public void upCnt() {
-        cnt++;
+    public void setCnt(Integer cnt) {
+        this.cnt = cnt;
     }
-
-    public void downCnt() {
-        cnt--;
-    }
-
-    ;
 }
