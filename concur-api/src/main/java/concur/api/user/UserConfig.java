@@ -1,6 +1,8 @@
 package concur.api.user;
 
+import concur.core.config.RUser;
 import concur.core.entity.User;
+import concur.core.repository.ReservationRepository;
 import concur.core.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -9,25 +11,25 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.Optional;
 
 @Configuration
 @RequiredArgsConstructor
 public class UserConfig {
     private final UserRepository userRepository;
-    private final RedisTemplate<String, Integer> redisTemplate;
+    private final ReservationRepository reservationRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     @PostConstruct
     @Transactional
     void setup() {
-        ValueOperations<String, Integer> op = redisTemplate.opsForValue();
-        op.set("injae", 1);
-        Optional<User> injae = userRepository.findByName("injae");
-        if (injae.isEmpty()) {
-            userRepository.save(new User("injae", 0));
+        reservationRepository.deleteAll();
+        userRepository.deleteAll();
+
+        ValueOperations<String, String> op = redisTemplate.opsForValue();
+        for (RUser user : RUser.values()) {
+            op.set(user.getName(), "0");
+            userRepository.save(new User(user.getName(), 0));
         }
-
-
     }
 }
