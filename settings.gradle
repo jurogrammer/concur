@@ -1,0 +1,5 @@
+rootProject.name = 'concur'
+include 'concur-core'
+include 'concur-api'
+include 'concur-consumer'
+
