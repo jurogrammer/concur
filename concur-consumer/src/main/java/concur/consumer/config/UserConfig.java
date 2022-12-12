@@ -1,4 +1,4 @@
-package concur.api.user;
+package concur.consumer.config;
 
 import concur.core.config.RUser;
 import concur.core.entity.User;
