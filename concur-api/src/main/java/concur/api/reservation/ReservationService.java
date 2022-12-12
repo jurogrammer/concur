@@ -35,7 +35,7 @@ public class ReservationService {
         valueOp.increment(userName);
 
         if (ai.getAndIncrement() % 2 == 0) {
-
+            throw new RuntimeException("fucking error");
         }
         countKafkaTemplate.send(Topic.COUNT.getTopicName(), new KafkaCount(user.getId(), user.getCnt() + 1));
         return savedReservation;
