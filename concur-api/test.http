@@ -1,4 +1,7 @@
 POST http://localhost:8080/users/injae/reservations
+###
+POST http://localhost/users/injae/reservations
+//POST http://localhost/users/injae/reservations
 
 ###
 DELETE http://localhost:8080/users/injae/reservations

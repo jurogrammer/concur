@@ -34,9 +34,6 @@ public class ReservationService {
         ValueOperations<String, String> valueOp = redisTemplate.opsForValue();
         valueOp.increment(userName);
 
-        if (ai.getAndIncrement() % 2 == 0) {
-
-        }
         countKafkaTemplate.send(Topic.COUNT.getTopicName(), new KafkaCount(user.getId(), user.getCnt() + 1));
         return savedReservation;
     }

@@ -1,0 +1,88 @@
+version: "3"
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    container_name: myweb-proxy
+    depends_on:
+      - api
+  api:
+    image: concur-api:0.0.1-SNAPSHOT
+    expose:
+      - "8080"
+    deploy:
+      replicas: 2
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      KAFKA_HOST: broker
+      KAFKA_PORT: 9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MYSQL_USER_NAME: root
+      MYSQL_USER_PASSWORD: wntjqj!
+    depends_on:
+      - redis
+      - mysql
+      - broker
+      - zookeeper
+
+  consumer:
+    image: concur-consumer:0.0.1-SNAPSHOT
+    ports:
+      - "9999:9999"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      KAFKA_HOST: broker
+      KAFKA_PORT: 9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MYSQL_USER_NAME: root
+      MYSQL_USER_PASSWORD: wntjqj!
+    depends_on:
+      - redis
+      - mysql
+      - broker
+      - zookeeper
+
+  redis:
+    image: redis
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - "mysql-data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: wntjqj!
+      MYSQL_DATABASE: smtm
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:7.3.0
+    ports:
+      # To learn about configuring Kafka for access across networks see
+      # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+volumes:
+  mysql-data:
+    driver: local
