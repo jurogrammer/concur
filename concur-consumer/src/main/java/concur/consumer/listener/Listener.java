@@ -20,13 +20,25 @@ public class Listener {
 
 	@Transactional
 	@KafkaListener(topics = "count", groupId = "1")
-	public void countTopicListener(KafkaCount kafkaCount) {
-		// 차라리 redis에서 값을 가져와서 업데이트 치는게 나을 듯.
-		ValueOperations<String, String> valueOp = redisTemplate.opsForValue();
+	public void redisTopicListener(KafkaCount kafkaCount) {
 		User user = userRepository.findById(kafkaCount.getUserId()).orElseThrow();
-		String s = valueOp.get(user.getName());
-		user.setCnt(Integer.parseInt(s));
+		String userName = user.getName();
+		ValueOperations<String, String> valueOp = redisTemplate.opsForValue();
+
+		if (kafkaCount.getDelta() == 1) {
+			valueOp.increment(userName);
+		} else {
+			valueOp.decrement(userName);
+		}
+	}
+
+	@Transactional
+	@KafkaListener(topics = "count", groupId = "2")
+	public void mysqlTopicListener(KafkaCount kafkaCount) {
+		User user = userRepository.findById(kafkaCount.getUserId()).orElseThrow();
+		user.setCnt(user.getCnt() + kafkaCount.getDelta());
 		userRepository.save(user);
+
 	}
 
 }

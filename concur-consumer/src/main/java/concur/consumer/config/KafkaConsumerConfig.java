@@ -29,7 +29,7 @@ public class KafkaConsumerConfig {
 		Map<String, Object> props = new HashMap<>();
 
 		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-		props.put(ConsumerConfig.GROUP_ID_CONFIG, "1");
+		props.put(ConsumerConfig.GROUP_ID_CONFIG, "1"); //redis
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
 
@@ -40,35 +40,34 @@ public class KafkaConsumerConfig {
 	public ConcurrentKafkaListenerContainerFactory<String, KafkaCount> kafkaListenerContainerFactory() {
 		ConcurrentKafkaListenerContainerFactory<String, KafkaCount> factory =
 			new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConcurrency(1);
 		factory.setConsumerFactory(consumerFactory());
 		return factory;
 	}
 
-	//
-	// @Bean
-	// public ConsumerFactory<String, KafkaCount> oneConsumerFactory() {
-	//     JsonDeserializer<KafkaCount> deserializer = new JsonDeserializer<>(KafkaCount.class);
-	//     deserializer.setRemoveTypeHeaders(false);
-	//     deserializer.addTrustedPackages("*");
-	//     deserializer.setUseTypeMapperForKey(true);
-	//
-	//     Map<String, Object> props = new HashMap<>();
-	//
-	//     props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-	//     props.put(ConsumerConfig.GROUP_ID_CONFIG, "2");
-	//     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-	//     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
-	//
-	//     return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
-	// }
-	//
-	// @Bean
-	// public ConcurrentKafkaListenerContainerFactory<String, KafkaCount> oneConsumerContainerFactory() {
-	//     ConcurrentKafkaListenerContainerFactory<String, KafkaCount> factory =
-	//         new ConcurrentKafkaListenerContainerFactory<>();
-	//     factory.setConcurrency(1);
-	//     factory.setConsumerFactory(consumerFactory());
-	//     return factory;
-	// }
+
+	@Bean
+	public ConsumerFactory<String, KafkaCount> oneConsumerFactory() {
+	    JsonDeserializer<KafkaCount> deserializer = new JsonDeserializer<>(KafkaCount.class);
+	    deserializer.setRemoveTypeHeaders(false);
+	    deserializer.addTrustedPackages("*");
+	    deserializer.setUseTypeMapperForKey(true);
+
+	    Map<String, Object> props = new HashMap<>();
+
+	    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+	    props.put(ConsumerConfig.GROUP_ID_CONFIG, "2"); //mysql
+	    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+	    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
+
+	    return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
+	}
+
+	@Bean
+	public ConcurrentKafkaListenerContainerFactory<String, KafkaCount> oneConsumerContainerFactory() {
+	    ConcurrentKafkaListenerContainerFactory<String, KafkaCount> factory =
+	        new ConcurrentKafkaListenerContainerFactory<>();
+	    factory.setConcurrency(1);
+	    factory.setConsumerFactory(consumerFactory());
+	    return factory;
+	}
 }

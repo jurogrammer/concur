@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class KafkaCount {
     private Long userId;
-    private Integer count;
+    private Integer delta;
 
     public String value() {
-        return userId + ":" + count;
+        return userId + ":" + delta;
     }
 }
